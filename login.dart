@@ -1,7 +1,8 @@
-import 'package:app22/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+
+import 'home.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -13,9 +14,8 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController otpController = TextEditingController();
 
   FirebaseAuth auth = FirebaseAuth.instance;
-
   bool otpVisibility = false;
-
+  User? user;
   String verificationID = "";
 
   @override
@@ -114,25 +114,39 @@ class _LoginScreenState extends State<LoginScreen> {
 
     await auth.signInWithCredential(credential).then(
       (value) {
-        print("You are logged in successfully");
-        Fluttertoast.showToast(
-          msg: "You are logged in successfully",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
+        setState(() {
+          user = FirebaseAuth.instance.currentUser;
+        });
       },
     ).whenComplete(
       () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Home(),
-          ),
-        );
+        if (user != null) {
+          Fluttertoast.showToast(
+            msg: "You are logged in successfully",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Home(),
+            ),
+          );
+        } else {
+          Fluttertoast.showToast(
+            msg: "your login is failed",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        }
       },
     );
   }
